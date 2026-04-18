@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  phone     String?  @unique
+  password  String
+  name      String
+  role      String   @default("patient") // admin, doctor, nurse, receptionist, patient
+  specialty String?
+  avatar    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctorAppointments  Appointment[] @relation("DoctorAppointments")
+  patientRecord       Patient?      @relation("PatientUser")
+  createdPatients     Patient[]     @relation("CreatedByUser")
+  notifications       Notification[]
+}
+
+model Patient {
+  id             String   @id @default(uuid())
+  fileNumber     String   @unique
+  userId         String?  @unique
+  user           User?    @relation("PatientUser", fields: [userId], references: [id])
+  firstName      String
+  lastName       String
+  dateOfBirth    DateTime
+  gender         String
+  phone          String
+  email          String?
+  address        String?
+  nationalId     String?  @unique
+  bloodType      String?
+  allergies      String?
+  chronicDiseases String?
+  emergencyContact String?
+  emergencyPhone   String?
+  notes          String?
+  createdById    String?
+  createdBy      User?    @relation("CreatedByUser", fields: [createdById], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  documents      Document[]
+  vitalSigns     VitalSign[]
+}
+
+model Appointment {
+  id          String   @id @default(uuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id])
+  doctorId    String
+  doctor      User     @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  date        DateTime
+  startTime   String
+  endTime     String
+  type        String   @default("consultation") // consultation, follow_up, emergency
+  status      String   @default("scheduled") // scheduled, confirmed, in_progress, completed, cancelled, no_show
+  reason      String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model MedicalRecord {
+  id          String   @id @default(uuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id])
+  diagnosis   String
+  symptoms    String?
+  treatment   String?
+  medications String?
+  labResults  String?
+  notes       String?
+  doctorName  String
+  visitDate   DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model VitalSign {
+  id              String   @id @default(uuid())
+  patientId       String
+  patient         Patient  @relation(fields: [patientId], references: [id])
+  temperature     Float?
+  bloodPressureSys Int?
+  bloodPressureDia Int?
+  heartRate       Int?
+  respiratoryRate Int?
+  oxygenSaturation Float?
+  weight          Float?
+  height          Float?
+  recordedBy      String
+  recordedAt      DateTime @default(now())
+  createdAt       DateTime @default(now())
+}
+
+model Document {
+  id         String   @id @default(uuid())
+  patientId  String
+  patient    Patient  @relation(fields: [patientId], references: [id])
+  name       String
+  type       String   // lab_result, xray, prescription, report, other
+  filePath   String
+  uploadedBy String
+  createdAt  DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  type      String   // appointment, lab_result, medical, system
+  isRead    Boolean  @default(false)
+  data      String?
+  createdAt DateTime @default(now())
+}
