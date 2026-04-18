@@ -23,7 +23,7 @@ router.post(
     body('phone').optional().isMobilePhone().withMessage('Valid phone number is required'),
     body('role')
       .optional()
-      .isIn(['admin', 'doctor', 'nurse', 'receptionist', 'patient'])
+      .isIn(['patient'])
       .withMessage('Invalid role'),
     body('specialty').optional().isString(),
   ],

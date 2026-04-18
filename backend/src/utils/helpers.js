@@ -6,8 +6,10 @@ const generateFileNumber = () => {
 };
 
 const paginate = (page = 1, limit = 10) => {
-  const skip = (page - 1) * limit;
-  return { skip, take: limit };
+  const p = parseInt(page, 10) || 1;
+  const l = parseInt(limit, 10) || 10;
+  const skip = (p - 1) * l;
+  return { skip, take: l };
 };
 
 const formatPaginationResponse = (data, total, page, limit) => {

@@ -237,7 +237,14 @@ router.post(
       const vitalSign = await prisma.vitalSign.create({
         data: {
           patientId: req.params.id,
-          ...req.body,
+          temperature: req.body.temperature,
+          bloodPressureSys: req.body.bloodPressureSys,
+          bloodPressureDia: req.body.bloodPressureDia,
+          heartRate: req.body.heartRate,
+          respiratoryRate: req.body.respiratoryRate,
+          oxygenSaturation: req.body.oxygenSaturation,
+          weight: req.body.weight,
+          height: req.body.height,
           recordedBy: req.user.name,
         },
       });
@@ -271,7 +278,11 @@ router.post(
       const record = await prisma.medicalRecord.create({
         data: {
           patientId: req.params.id,
-          ...req.body,
+          diagnosis: req.body.diagnosis,
+          symptoms: req.body.symptoms,
+          treatment: req.body.treatment,
+          medications: req.body.medications,
+          notes: req.body.notes,
           doctorName: req.user.name,
         },
       });
